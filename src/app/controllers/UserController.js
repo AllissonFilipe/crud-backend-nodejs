@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import User from '../models/User';
+import bcrypt from 'bcryptjs';
 const jwt = require("jsonwebtoken");
 const JWTSecret = "crudParaTreinamento";
 
@@ -89,7 +90,8 @@ class UserController {
             // var user = DB.users.find(u => u.email == email);
             const user = await User.findOne({ where: { email: email } });
             if(user != undefined){
-                if(user.password_hash == password){
+                const isPassword = await bcrypt.compare(password, user.password_hash)
+                if(isPassword){
                     jwt.sign({id: user.id, email: user.email},JWTSecret,{expiresIn:'48h'},(err, token) => {
                         if(err){
                             res.status(400);
